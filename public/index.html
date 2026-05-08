@@ -1,0 +1,354 @@
+<!doctype html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>WeatherLens - Your Calm Weather Companion</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Inter:wght@100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/styles.css" />
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b6756",
+              "primary-container": "#7ba895",
+              "primary-fixed": "#beedd8",
+              secondary: "#5e5e5e",
+              outline: "#717974",
+              surface: "#fbf9f6",
+              "surface-dim": "#dbdad7",
+              "surface-container-low": "#f5f3f0",
+              "surface-container": "#efeeeb",
+              "on-primary": "#ffffff",
+              "on-surface": "#1b1c1a",
+              "on-surface-variant": "#414944",
+              error: "#ba1a1a"
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px"
+            },
+            spacing: {
+              "container-padding": "24px",
+              "max-width": "1200px",
+              "section-margin": "40px",
+              "stack-gap": "16px"
+            },
+            fontFamily: {
+              "headline-lg": ["Newsreader"],
+              "accent-italic": ["Noto Serif"],
+              "body-md": ["Inter"],
+              "headline-md": ["Newsreader"],
+              "display-xl": ["Newsreader"]
+            },
+            fontSize: {
+              "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "400" }],
+              "accent-italic": ["20px", { lineHeight: "1.5", fontWeight: "400" }],
+              "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-md": ["24px", { lineHeight: "1.3", fontWeight: "400" }],
+              "display-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "300" }]
+            }
+          }
+        }
+      };
+    </script>
+
+    <style>
+      .glass-panel {
+        background: rgba(245, 243, 240, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(113, 121, 116, 0.2);
+      }
+      .botanical-shadow {
+        box-shadow: 0 10px 30px rgba(59, 103, 86, 0.08);
+      }
+      body {
+        background: linear-gradient(180deg, #a5c2f4 0%, #fbf9f6 100%);
+        min-height: 100vh;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #beedd8;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body class="font-body-md text-on-surface">
+    <!-- TopAppBar -->
+    <header
+      class="bg-surface/80 backdrop-blur-md fixed w-full z-50 top-0 bg-surface-container-low/50"
+    >
+      <div class="flex justify-between items-center w-full px-container-padding py-4 max-w-max-width mx-auto">
+        <div class="flex items-center gap-4">
+          <span class="font-headline-lg text-headline-lg text-on-surface font-bold">WeatherLens</span>
+        </div>
+
+        <nav class="hidden md:flex gap-8 items-center">
+          <button data-tab="forecast" class="tab-btn text-primary font-bold hover:bg-primary-container/20 transition-colors px-3 py-1 rounded-full">
+            Forecast
+          </button>
+          <button data-tab="saved" class="tab-btn text-secondary hover:bg-primary-container/20 transition-colors px-3 py-1 rounded-full">
+            Saved
+          </button>
+          <button data-tab="insights" class="tab-btn text-secondary hover:bg-primary-container/20 transition-colors px-3 py-1 rounded-full">
+            Insights
+          </button>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button id="searchBtn" class="p-2 rounded-full hover:bg-primary-container/20 transition-colors active:scale-95 duration-200" aria-label="Search">
+            <span class="material-symbols-outlined text-primary" data-icon="search">search</span>
+          </button>
+          <button id="settingsBtn" class="p-2 rounded-full hover:bg-primary-container/20 transition-colors active:scale-95 duration-200" aria-label="Settings">
+            <span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+          </button>
+          <button id="minimizeBtn" class="p-2 rounded-full hover:bg-primary-container/20 transition-colors active:scale-95 duration-200" aria-label="Minimize">
+            <span class="material-symbols-outlined text-primary" data-icon="minimize">minimize</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-max-width mx-auto px-container-padding pt-32 pb-40">
+      <!-- Search -->
+      <section class="flex flex-col items-center mb-section-margin">
+        <div class="relative w-full max-w-md group">
+          <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+          </div>
+          <input
+            id="searchInput"
+            class="w-full pl-12 pr-12 py-4 rounded-full border-none glass-panel focus:ring-2 focus:ring-primary/20 text-[18px] placeholder-secondary/50 botanical-shadow"
+            placeholder="Search your sanctuary city..."
+            type="text"
+          />
+          <div class="absolute inset-y-0 right-4 flex items-center">
+            <span class="material-symbols-outlined text-primary" data-icon="location_on">location_on</span>
+          </div>
+        </div>
+
+        <div id="historyChips" class="mt-3 flex flex-wrap justify-center gap-2"></div>
+
+        <button
+          id="useLocationBtn"
+          class="mt-4 flex items-center gap-2 px-6 py-2 rounded-full text-primary hover:bg-primary-container/10 transition-all font-medium"
+        >
+          <span class="material-symbols-outlined text-[18px]" data-icon="near_me">near_me</span>
+          Use My Location
+        </button>
+      </section>
+
+      <!-- FORECAST TAB -->
+      <section id="forecastSection">
+        <!-- Main Weather Card -->
+        <section class="flex justify-center mb-section-margin">
+          <div class="glass-panel w-full lg:w-[70%] p-10 rounded-lg botanical-shadow text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary-fixed opacity-20 blur-3xl rounded-full"></div>
+            <div class="relative z-10">
+              <div class="flex items-center justify-center gap-3">
+                <h2 id="locationName" class="font-headline-lg text-headline-lg mb-2">—</h2>
+                <button id="saveCurrentBtn" class="p-2 rounded-full hover:bg-primary-container/20" title="Save location" aria-label="Save location">
+                  <span class="material-symbols-outlined text-primary" data-icon="bookmark_add">bookmark_add</span>
+                </button>
+              </div>
+
+              <p id="poeticDesc" class="font-accent-italic text-accent-italic italic text-secondary mb-8">"—"</p>
+
+              <div class="flex flex-col items-center gap-4">
+                <span
+                  id="weatherIcon"
+                  class="material-symbols-outlined text-[120px] text-primary transition-transform hover:scale-110 duration-700"
+                  data-icon="wb_sunny"
+                  style="font-variation-settings: 'FILL' 1;"
+                  >wb_sunny</span
+                >
+
+                <div class="flex items-start justify-center">
+                  <span id="tempValue" class="font-display-xl text-[96px] tracking-tighter leading-none">—</span>
+                  <div class="flex flex-col gap-1 ml-2 pt-4">
+                    <button id="celsiusBtn" class="w-10 h-6 bg-primary text-on-primary rounded-full text-[10px] font-bold">
+                      °C
+                    </button>
+                    <button id="fahrenheitBtn" class="w-10 h-6 bg-surface-container text-on-surface rounded-full text-[10px] font-bold">
+                      °F
+                    </button>
+                  </div>
+                </div>
+
+                <p id="feelsLike" class="text-secondary text-sm">Feels like: —</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Metrics -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-stack-gap mb-section-margin">
+          <div class="glass-panel p-6 rounded-lg botanical-shadow flex flex-col items-center">
+            <span class="material-symbols-outlined text-secondary mb-2" data-icon="humidity_percentage">humidity_percentage</span>
+            <span class="text-xs uppercase tracking-widest text-outline mb-1">Humidity</span>
+            <span id="humidityValue" class="font-headline-md text-headline-md">—</span>
+          </div>
+          <div class="glass-panel p-6 rounded-lg botanical-shadow flex flex-col items-center">
+            <span class="material-symbols-outlined text-secondary mb-2" data-icon="air">air</span>
+            <span class="text-xs uppercase tracking-widest text-outline mb-1">Wind Speed</span>
+            <span id="windValue" class="font-headline-md text-headline-md">—</span>
+          </div>
+          <div class="glass-panel p-6 rounded-lg botanical-shadow flex flex-col items-center">
+            <span class="material-symbols-outlined text-secondary mb-2" data-icon="speed">speed</span>
+            <span class="text-xs uppercase tracking-widest text-outline mb-1">Pressure</span>
+            <span id="pressureValue" class="font-headline-md text-headline-md">—</span>
+          </div>
+          <div class="glass-panel p-6 rounded-lg botanical-shadow flex flex-col items-center">
+            <span class="material-symbols-outlined text-secondary mb-2" data-icon="visibility">visibility</span>
+            <span class="text-xs uppercase tracking-widest text-outline mb-1">Visibility</span>
+            <span id="visibilityValue" class="font-headline-md text-headline-md">—</span>
+          </div>
+        </section>
+
+        <!-- Forecast -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12" id="forecastDetails">
+          <section class="lg:col-span-2">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="font-headline-md text-headline-md">Next 24 Hours</h3>
+              <span class="text-primary font-medium text-sm">Auto-updates</span>
+            </div>
+            <div id="hourlyContainer" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
+          </section>
+
+          <section class="lg:col-span-1">
+            <h3 class="font-headline-md text-headline-md mb-6">5-Day Forecast</h3>
+            <div id="dailyContainer" class="flex flex-col gap-3"></div>
+          </section>
+        </div>
+
+        <!-- Insights Accordion -->
+        <section class="mt-section-margin">
+          <div class="glass-panel rounded-lg botanical-shadow overflow-hidden">
+            <button id="analyticsToggle" class="w-full px-8 py-6 flex items-center justify-between group">
+              <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-primary" data-icon="analytics">analytics</span>
+                <span class="font-headline-md text-headline-md">Detailed Atmospheric Analytics</span>
+              </div>
+              <span class="material-symbols-outlined group-hover:translate-y-1 transition-transform" data-icon="expand_more">expand_more</span>
+            </button>
+
+            <div id="analyticsContent" class="px-8 pb-8 pt-0 grid grid-cols-1 md:grid-cols-2 gap-12 hidden">
+              <div>
+                <h4 class="text-xs uppercase tracking-widest text-outline mb-4">UV Index Exposure</h4>
+                <div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+                  <div id="uvBar" class="h-full bg-primary-container w-[10%] rounded-full"></div>
+                </div>
+                <div class="flex justify-between mt-2">
+                  <span id="uvValue" class="font-medium">—</span>
+                  <span class="text-secondary text-sm">Daily max</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 class="text-xs uppercase tracking-widest text-outline mb-4">Sunrise / Sunset</h4>
+                <div class="flex items-center justify-between">
+                  <span class="font-medium">Sunrise</span>
+                  <span id="sunriseValue" class="text-secondary">—</span>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="font-medium">Sunset</span>
+                  <span id="sunsetValue" class="text-secondary">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- SAVED TAB -->
+      <section id="savedSection" class="hidden">
+        <div class="glass-panel rounded-lg botanical-shadow p-8">
+          <h2 class="font-headline-md text-headline-md mb-4">Saved Locations</h2>
+          <div id="favoritesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- INSIGHTS TAB -->
+      <section id="insightsSection" class="hidden">
+        <div class="glass-panel rounded-lg botanical-shadow p-8">
+          <h2 class="font-headline-md text-headline-md mb-4">Insights</h2>
+          <p class="text-secondary mb-6">
+            A calm summary based on the latest data (feels-like, UV, sunrise/sunset).
+          </p>
+          <div id="insightsCards" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Settings Sidebar -->
+    <aside
+      id="settings-sidebar"
+      class="fixed left-0 top-0 h-full w-80 bg-surface/95 backdrop-blur-lg shadow-xl -translate-x-full transition-transform duration-300 ease-in-out z-[60]"
+    >
+      <div class="flex flex-col gap-stack-gap p-6 h-full">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+          </div>
+          <div>
+            <h3 class="font-headline-md text-headline-md text-primary">Settings</h3>
+            <p class="font-body-md text-body-md text-secondary">Customize your calm</p>
+          </div>
+        </div>
+
+        <div class="text-secondary text-sm">
+          <p class="mb-2"><span class="font-medium">Tip:</span> Press <code>/</code> to focus search.</p>
+          <p>Favorites and history are stored on the server (full-stack).</p>
+        </div>
+
+        <div class="mt-auto">
+          <button class="w-full py-4 rounded-full bg-primary text-on-primary font-bold shadow-lg hover:scale-[1.02] transition-transform">
+            Go Pro
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- BottomNavBar (Mobile) -->
+    <nav
+      class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/85 backdrop-blur-[10px] rounded-t-lg shadow-lg"
+    >
+      <button data-tab="forecast" class="tab-btn-mobile flex flex-col items-center justify-center bg-primary-container/40 text-on-primary rounded-full px-6 py-2 active:scale-90 duration-300">
+        <span class="material-symbols-outlined" data-icon="wb_sunny">wb_sunny</span>
+        <span class="text-xs">Forecast</span>
+      </button>
+      <button data-tab="saved" class="tab-btn-mobile flex flex-col items-center justify-center text-secondary px-6 py-2 hover:text-primary transition-all active:scale-90 duration-300">
+        <span class="material-symbols-outlined" data-icon="bookmarks">bookmarks</span>
+        <span class="text-xs">Saved</span>
+      </button>
+      <button data-tab="insights" class="tab-btn-mobile flex flex-col items-center justify-center text-secondary px-6 py-2 hover:text-primary transition-all active:scale-90 duration-300">
+        <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+        <span class="text-xs">Insights</span>
+      </button>
+    </nav>
+
+    <script src="/script.js" defer></script>
+  </body>
+</html>
+

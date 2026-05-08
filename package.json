@@ -1,0 +1,23 @@
+{
+  "name": "weatherlens-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WeatherLens full-stack app (Express + Vanilla JS) using Open-Meteo.",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "test": "node test/test.js",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}
+
