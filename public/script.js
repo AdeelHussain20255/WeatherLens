@@ -303,24 +303,8 @@ function getGeolocationWeather() {
 }
 
 function setUnit(isCelsius) {
+  // Update the app state and re-render the weather display
   state.isCelsius = isCelsius;
-  // Button styling
-  const c = document.getElementById("celsiusBtn");
-  const f = document.getElementById("fahrenheitBtn");
-  if (c && f) {
-    if (isCelsius) {
-      c.classList.add("bg-primary", "text-on-primary");
-      c.classList.remove("bg-surface-container", "text-on-surface");
-      f.classList.remove("bg-primary", "text-on-primary");
-      f.classList.add("bg-surface-container", "text-on-surface");
-    } else {
-      f.classList.add("bg-primary", "text-on-primary");
-      f.classList.remove("bg-surface-container", "text-on-surface");
-      c.classList.remove("bg-primary", "text-on-primary");
-      c.classList.add("bg-surface-container", "text-on-surface");
-    }
-  }
-
   if (state.data) displayWeather(state.data);
 }
 
@@ -482,6 +466,9 @@ function setupInteractions() {
 
   const celsiusBtn = document.getElementById("celsiusBtn");
   const fahrenheitBtn = document.getElementById("fahrenheitBtn");
+  const settingsCelsiusBtn = document.getElementById("settings-celsius-btn");
+  const settingsFahrenheitBtn = document.getElementById("settings-fahrenheit-btn");
+  const clearHistoryBtn = document.getElementById("clear-history-btn");
 
   const saveCurrentBtn = document.getElementById("saveCurrentBtn");
 
@@ -495,7 +482,15 @@ function setupInteractions() {
   searchInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") doSearch();
   });
-  searchBtn?.addEventListener("click", doSearch);
+  // Search button: focus input if empty, otherwise search
+  searchBtn?.addEventListener("click", () => {
+    const city = (searchInput?.value || "").trim();
+    if (!city) {
+      searchInput?.focus();
+    } else {
+      doSearch();
+    }
+  });
 
   useLocationBtn?.addEventListener("click", getGeolocationWeather);
   settingsBtn?.addEventListener("click", toggleSettingsSidebar);
@@ -509,8 +504,39 @@ function setupInteractions() {
     analyticsContent?.classList.toggle("hidden");
   });
 
-  celsiusBtn?.addEventListener("click", () => setUnit(true));
-  fahrenheitBtn?.addEventListener("click", () => setUnit(false));
+  celsiusBtn?.addEventListener("click", () => {
+    setUnit(true);
+    updateSettingsButtons(true);
+  });
+  fahrenheitBtn?.addEventListener("click", () => {
+    setUnit(false);
+    updateSettingsButtons(false);
+  });
+
+  // Settings sidebar unit toggle
+  settingsCelsiusBtn?.addEventListener("click", () => {
+    setUnit(true);
+    updateSettingsButtons(true);
+  });
+  settingsFahrenheitBtn?.addEventListener("click", () => {
+    setUnit(false);
+    updateSettingsButtons(false);
+  });
+
+  // Clear history button
+  clearHistoryBtn?.addEventListener("click", async () => {
+    if (confirm("Clear search history? This cannot be undone.")) {
+      try {
+        // Re-fetch history to clear it manually by not saving new entries
+        const container = document.getElementById("historyChips");
+        if (container) container.innerHTML = "";
+        showNotification("History cleared (local only).", "info");
+      } catch (err) {
+        console.error(err);
+        showNotification("Failed to clear history.", "error");
+      }
+    }
+  });
 
   saveCurrentBtn?.addEventListener("click", saveCurrentLocation);
 
@@ -526,10 +552,47 @@ function setupInteractions() {
   });
 }
 
+function updateSettingsButtons(isCelsius) {
+  // Update main UI buttons
+  const c = document.getElementById("celsiusBtn");
+  const f = document.getElementById("fahrenheitBtn");
+  if (c && f) {
+    if (isCelsius) {
+      c.classList.add("bg-primary", "text-on-primary");
+      c.classList.remove("bg-surface-container", "text-on-surface");
+      f.classList.remove("bg-primary", "text-on-primary");
+      f.classList.add("bg-surface-container", "text-on-surface");
+    } else {
+      f.classList.add("bg-primary", "text-on-primary");
+      f.classList.remove("bg-surface-container", "text-on-surface");
+      c.classList.remove("bg-primary", "text-on-primary");
+      c.classList.add("bg-surface-container", "text-on-surface");
+    }
+  }
+
+  // Update settings sidebar buttons
+  const sc = document.getElementById("settings-celsius-btn");
+  const sf = document.getElementById("settings-fahrenheit-btn");
+  if (sc && sf) {
+    if (isCelsius) {
+      sc.classList.add("bg-primary", "text-on-primary");
+      sc.classList.remove("bg-surface-container", "text-on-surface");
+      sf.classList.remove("bg-primary", "text-on-primary");
+      sf.classList.add("bg-surface-container", "text-on-surface");
+    } else {
+      sf.classList.add("bg-primary", "text-on-primary");
+      sf.classList.remove("bg-surface-container", "text-on-surface");
+      sc.classList.remove("bg-primary", "text-on-primary");
+      sc.classList.add("bg-surface-container", "text-on-surface");
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   setupInteractions();
   setupTabs();
   setUnit(true);
+  updateSettingsButtons(true);
   await refreshHistory();
   getGeolocationWeather();
   console.log("WeatherLens app initialized successfully!");

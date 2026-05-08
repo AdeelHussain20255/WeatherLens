@@ -306,7 +306,7 @@
       id="settings-sidebar"
       class="fixed left-0 top-0 h-full w-80 bg-surface/95 backdrop-blur-lg shadow-xl -translate-x-full transition-transform duration-300 ease-in-out z-[60]"
     >
-      <div class="flex flex-col gap-stack-gap p-6 h-full">
+      <div class="flex flex-col gap-stack-gap p-6 h-full overflow-y-auto">
         <div class="flex items-center gap-4 mb-6">
           <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
             <span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
@@ -317,15 +317,35 @@
           </div>
         </div>
 
-        <div class="text-secondary text-sm">
-          <p class="mb-2"><span class="font-medium">Tip:</span> Press <code>/</code> to focus search.</p>
-          <p>Favorites and history are stored on the server (full-stack).</p>
+        <!-- Temperature Unit Toggle -->
+        <div class="glass-panel rounded-lg p-4 botanical-shadow">
+          <h4 class="text-sm font-bold text-on-surface mb-3">Temperature Unit</h4>
+          <div class="flex gap-2">
+            <button id="settings-celsius-btn" class="flex-1 px-3 py-2 bg-primary text-on-primary rounded-full text-sm font-bold">
+              °C
+            </button>
+            <button id="settings-fahrenheit-btn" class="flex-1 px-3 py-2 bg-surface-container text-on-surface rounded-full text-sm font-bold">
+              °F
+            </button>
+          </div>
         </div>
 
-        <div class="mt-auto">
-          <button class="w-full py-4 rounded-full bg-primary text-on-primary font-bold shadow-lg hover:scale-[1.02] transition-transform">
-            Go Pro
+        <!-- Clear History -->
+        <div class="glass-panel rounded-lg p-4 botanical-shadow">
+          <h4 class="text-sm font-bold text-on-surface mb-3">Search History</h4>
+          <button id="clear-history-btn" class="w-full px-4 py-2 bg-error text-on-primary rounded-full text-sm font-medium hover:scale-[1.02] transition-transform">
+            Clear History
           </button>
+        </div>
+
+        <div class="text-secondary text-xs">
+          <p class="mb-2"><span class="font-medium">💡 Tip:</span> Press <code>/</code> to focus search.</p>
+          <p class="mb-2"><span class="font-medium">💾 Data:</span> Favorites and history are stored on the server (full-stack).</p>
+          <p><span class="font-medium">🌐 API:</span> Weather data from Open-Meteo.</p>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-outline/20">
+          <p class="text-xs text-secondary text-center">WeatherLens v1.0</p>
         </div>
       </div>
     </aside>
