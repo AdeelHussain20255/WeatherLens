@@ -169,7 +169,14 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`WeatherLens server running on http://localhost:${PORT}`);
-});
+
+// When deployed on Vercel, export the Express app rather than starting
+// a standalone listener. Vercel will handle HTTP routing and invocation.
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(PORT, () => {
+    console.log(`WeatherLens server running on http://localhost:${PORT}`);
+  });
+}
 
