@@ -6,6 +6,8 @@ const DB_PATH = process.env.WEATHER_APP_DB_PATH || path.join(__dirname, '..', 'd
 
 // Serialize writes so concurrent requests do not corrupt the JSON file.
 let pendingWrite = Promise.resolve();
+let memoryDb = null;
+let readOnlyFallback = false;
 
 function defaultDb() {
   return {
@@ -14,33 +16,82 @@ function defaultDb() {
   };
 }
 
+function isReadOnlyError(error) {
+  return error && (error.code === 'EROFS' || error.code === 'EACCES' || error.code === 'EPERM');
+}
+
 async function ensureDbFile() {
+  if (memoryDb) return;
+
   try {
     await fs.access(DB_PATH);
-  } catch {
+  } catch (error) {
+    if (isReadOnlyError(error)) {
+      readOnlyFallback = true;
+      memoryDb = defaultDb();
+      return;
+    }
+
     await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    await fs.writeFile(DB_PATH, JSON.stringify(defaultDb(), null, 2), 'utf8');
+    try {
+      await fs.writeFile(DB_PATH, JSON.stringify(defaultDb(), null, 2), 'utf8');
+    } catch (writeError) {
+      if (isReadOnlyError(writeError)) {
+        readOnlyFallback = true;
+        memoryDb = defaultDb();
+      } else {
+        throw writeError;
+      }
+    }
   }
 }
 
 async function readDb() {
-  // Wait for any queued writes to finish before reading the file.
+  if (memoryDb) return memoryDb;
   await pendingWrite;
   await ensureDbFile();
-  const raw = await fs.readFile(DB_PATH, 'utf8');
+
+  if (memoryDb) return memoryDb;
+
   try {
+    const raw = await fs.readFile(DB_PATH, 'utf8');
     const parsed = JSON.parse(raw);
     return { ...defaultDb(), ...parsed };
-  } catch {
+  } catch (error) {
+    if (isReadOnlyError(error)) {
+      readOnlyFallback = true;
+      memoryDb = defaultDb();
+      return memoryDb;
+    }
     return defaultDb();
   }
 }
 
 async function writeDb(db) {
+  if (readOnlyFallback) {
+    memoryDb = db;
+    return;
+  }
+
   await ensureDbFile();
+  if (readOnlyFallback) {
+    memoryDb = db;
+    return;
+  }
+
   const data = JSON.stringify(db, null, 2);
-  // Chain writes so only one write happens at a time.
-  pendingWrite = pendingWrite.finally(() => fs.writeFile(DB_PATH, data, 'utf8'));
+  pendingWrite = pendingWrite.finally(async () => {
+    try {
+      await fs.writeFile(DB_PATH, data, 'utf8');
+    } catch (error) {
+      if (isReadOnlyError(error)) {
+        readOnlyFallback = true;
+        memoryDb = db;
+      } else {
+        throw error;
+      }
+    }
+  });
   await pendingWrite;
 }
 
