@@ -88,34 +88,27 @@ function generatePoeticDescription(condition) {
 }
 
 function updateBackground(condition) {
+  // Map conditions to background image files based on the actual weather pattern
   const backgroundImages = {
     Clear: "/assets/backgrounds/clear.jpg",
     Clouds: "/assets/backgrounds/clouds.jpg",
     Rain: "/assets/backgrounds/rain.jpg",
+    Drizzle: "/assets/backgrounds/rain.jpg",
+    Thunderstorm: "/assets/backgrounds/thunder.jpg",
     Snow: "/assets/backgrounds/snow.jpg",
-    Mist: "/assets/backgrounds/mist.jpg"
+    Mist: "/assets/backgrounds/mist.jpg",
+    Fog: "/assets/backgrounds/mist.jpg"
   };
 
-  // Your rule-set:
-  // - Clear => show clear
-  // - Clouds => show clouds
-  // - Rain or Drizzle (and Thunderstorm) => show raining
-  // - Snow => show snow
-  // - Otherwise => show mist (fallback)
-  const normalized =
-    condition === "Drizzle"
-      ? "Rain"
-      : condition === "Thunderstorm"
-        ? "Rain"
-        : condition === "Fog"
-          ? "Mist"
-          : condition;
-
-  const url = backgroundImages[normalized] || backgroundImages.Mist;
+  // Use the direct condition-to-image mapping for more accurate backgrounds
+  const url = backgroundImages[condition] || backgroundImages.Mist;
 
   // Add a soft overlay to keep text readable on top of the illustration
   document.body.style.backgroundImage = `linear-gradient(rgba(251, 249, 246, 0.5), rgba(251, 249, 246, 0.5)), url('${url}')`;
   document.body.style.backgroundColor = "#fbf9f6";
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundPosition = "center";
+  document.body.style.backgroundAttachment = "fixed";
 }
 
 function displayWeather(payload) {
